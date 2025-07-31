@@ -1,0 +1,130 @@
+app.jsx
+import { useState } from 'react';
+import './App.css'
+import ControlPanel from './components/ControlPanel'
+import WidgetArea from './components/widgetArea'
+
+function App() {
+  let [editMode, setEditMode] = useState(false);
+
+  return (
+    <>
+    <div className="d-flex flex-column h-100">
+      <ControlPanel editMode={editMode} setEditMode={setEditMode}/>
+      <WidgetArea editMode={editMode} setEditMode={setEditMode}/>
+    </div>
+    </>
+  )
+}
+
+export default App
+
+controlpanel.jsx
+import React from 'react'
+import Btn from './Btn'
+
+const ControlPanel = ({editMode, setEditMode}) => {
+ 
+    return (
+        <div className='d-flex flex-column flex-md-row gap-2 justify-content-center py-2'>
+            {!editMode && <div className="">
+                <Btn name="Edit" editMode={editMode} setEditMode={setEditMode}/>
+            </div>}
+            {editMode && <div className="">
+                <Btn name="Cancel" editMode={editMode} setEditMode={setEditMode}/>
+            </div>
+            }
+            {editMode && <div className="">
+                <Btn name="Save" editMode={editMode} setEditMode={setEditMode}/>
+            </div>
+            }
+        </div>
+    )
+}
+
+export default ControlPanel
+
+btn.jsx
+import React from 'react'
+import clsx from 'clsx';
+
+const Btn = ({name, editMode, setEditMode}) => {
+
+    let btnName = name.toLowerCase();
+    let displayName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+
+    const disableControl = () => {
+        if (btnName === 'edit') return editMode;
+        return !editMode;
+    };
+
+  const btnClass = clsx('btn', {
+    'btn-primary': btnName === 'save',
+    'btn-danger': btnName === 'cancel',
+    'btn-secondary': btnName === 'edit',
+  });
+
+  let handleClick = (e) => {
+    if(e.target.name === "edit") {
+      setEditMode(true);
+    } else if(e.target.name === "save") {
+      setEditMode(false);
+    } else if(e.target.name === "cancel") {
+      setEditMode(false);
+    } else {
+      console.log("unkown button clicked")
+    }
+  }
+
+  return (
+    <button className={btnClass} disabled={disableControl()} name={btnName} onClick={handleClick}>
+        {displayName}
+        {console.log(disableControl())}
+    </button>
+  )
+}
+
+export default Btn
+
+widgetarea.jsx
+import React from 'react';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const WidgetArea = ({editMode, setEditMode}) => {
+  const layouts = {
+    lg: [ { i: "a", x: 3, y: 0, w: 2, h: 1 }, { i: "b", x: 5, y: 0, w: 2, h: 2 }, { i: "c", x: 7, y: 0, w: 2, h: 1 } ],
+    md: [ { i: "a", x: 0, y: 0, w: 2, h: 1 }, { i: "b", x: 0, y: 1, w: 4, h: 2 }, { i: "c", x: 0, y: 3, w: 2, h: 1 } ],
+    sm: [ { i: "a", x: 0, y: 0, w: 6, h: 1 }, { i: "b", x: 0, y: 1, w: 6, h: 2 }, { i: "c", x: 0, y: 3, w: 6, h: 1 } ],
+    xs: [ { i: "a", x: 0, y: 0, w: 4, h: 1 }, { i: "b", x: 0, y: 1, w: 4, h: 2 }, { i: "c", x: 0, y: 3, w: 4, h: 1 } ],
+    xxs: [ { i: "a", x: 0, y: 0, w: 2, h: 1 }, { i: "b", x: 0, y: 1, w: 2, h: 2 }, { i: "c", x: 0, y: 3, w: 2, h: 1 } ]
+  };
+
+  const breakpoints = { lg: 1200, md: 992, sm: 768, xs: 576, xxs: 0 };
+  const cols = { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 };
+
+  return (
+    <div className="bg-secondary flex-grow-1">
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={layouts}
+        breakpoints={breakpoints}
+        cols={cols}
+        rowHeight={200}
+        compactType={false}
+        preventCollision={false}
+        isDraggable= {!editMode?false:true}
+        isResizable= {!editMode?false:true}
+      >
+        <div key="a" className="bg-warning p-1">a</div>
+        <div key="b" className="bg-danger p-1">b</div>
+        <div key="c" className="bg-primary p-1">c</div>
+      </ResponsiveGridLayout>
+    </div>
+  );
+};
+
+export default WidgetArea;
